@@ -123,5 +123,49 @@ describe("posts async thunks", () => {
     vi.spyOn(postApi, "deleteAllPosts").mockRejectedValue(new Error("Gagal"));
     const failRes = await asyncDeleteAllPosts()(dispatch, () => ({}), undefined);
     expect(failRes.type).toBe("posts/deleteAllPosts/rejected");
+
+  });
+  it("menangani fallback pesan error default pada setiap thunk jika error.message kosong", async () => {
+    const dispatch = vi.fn();
+
+    vi.spyOn(postApi, "getPosts").mockRejectedValue({});
+    const r1 = await asyncGetPosts(undefined)(dispatch, () => ({}), undefined);
+    expect(r1.payload).toBe("Gagal memuat daftar postingan");
+
+    vi.spyOn(postApi, "getPostById").mockRejectedValue({});
+    const r2 = await asyncGetPostById(1)(dispatch, () => ({}), undefined);
+    expect(r2.payload).toBe("Gagal memuat detail postingan");
+
+    vi.spyOn(postApi, "createPost").mockRejectedValue({});
+    const r3 = await asyncCreatePost({ description: "x" })(dispatch, () => ({}), undefined);
+    expect(r3.payload).toBe("Gagal menambahkan postingan");
+
+    vi.spyOn(postApi, "updatePost").mockRejectedValue({});
+    const r4 = await asyncUpdatePost({ id: 1, payload: { description: "x" } })(dispatch, () => ({}), undefined);
+    expect(r4.payload).toBe("Gagal memperbarui postingan");
+
+    vi.spyOn(postApi, "uploadPostCover").mockRejectedValue({});
+    const r5 = await asyncUploadPostCover({ id: 1, coverFile: new File([], "c.jpg") })(dispatch, () => ({}), undefined);
+    expect(r5.payload).toBe("Gagal mengunggah cover postingan");
+
+    vi.spyOn(postApi, "deletePost").mockRejectedValue({});
+    const r6 = await asyncDeletePost(1)(dispatch, () => ({}), undefined);
+    expect(r6.payload).toBe("Gagal menghapus postingan");
+
+    vi.spyOn(postApi, "toggleLikePost").mockRejectedValue({});
+    const r7 = await asyncToggleLikePost({ id: 1, payload: { like: 1 } })(dispatch, () => ({}), undefined);
+    expect(r7.payload).toBe("Gagal memproses suka postingan");
+
+    vi.spyOn(postApi, "addPostComment").mockRejectedValue({});
+    const r8 = await asyncAddPostComment({ id: 1, payload: { comment: "x" } })(dispatch, () => ({}), undefined);
+    expect(r8.payload).toBe("Gagal menambahkan komentar");
+
+    vi.spyOn(postApi, "deletePostComment").mockRejectedValue({});
+    const r9 = await asyncDeletePostComment(1)(dispatch, () => ({}), undefined);
+    expect(r9.payload).toBe("Gagal menghapus komentar");
+
+    vi.spyOn(postApi, "deleteAllPosts").mockRejectedValue({});
+    const r10 = await asyncDeleteAllPosts()(dispatch, () => ({}), undefined);
+    expect(r10.payload).toBe("Gagal menghapus semua postingan");
   });
 });

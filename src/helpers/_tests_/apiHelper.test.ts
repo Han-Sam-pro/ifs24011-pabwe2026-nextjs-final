@@ -12,7 +12,19 @@ describe("apiHelper", () => {
     vi.restoreAllMocks();
   });
 
-  it("menangani storage saat window tersedia", () => {
+  it("menangani kondisi jika window bernilai undefined (SSR)", () => {
+    const originalWindow = global.window;
+    // @ts-ignore
+    delete global.window;
+
+    expect(getAccessToken()).toBeNull();
+    putAccessToken("token");
+    removeAccessToken();
+
+    global.window = originalWindow;
+  });
+
+  it("menangani storage normal di lingkungan browser", () => {
     expect(getAccessToken()).toBeNull();
     putAccessToken("token-123");
     expect(getAccessToken()).toBe("token-123");
@@ -20,7 +32,8 @@ describe("apiHelper", () => {
     expect(getAccessToken()).toBeNull();
   });
 
-  it("berhasil melakukan fetch dengan query params dan bearer token", async () => {
+  it("melakukan fetch dengan query params, token, dan tanpa token", async () => {
+    // 1. Dengan token
     putAccessToken("auth-token");
     const mockData = { status: "success", data: [] };
     global.fetch = vi.fn().mockResolvedValue({
@@ -28,14 +41,17 @@ describe("apiHelper", () => {
       json: async () => mockData,
     });
 
-    const res = await apiFetch("/posts", {
+    const res = await apiFetch("posts", {
       params: { search: "test", page: 1, empty: "" },
     });
-
     expect(res).toEqual(mockData);
+
+    // 2. Tanpa token di storage
+    removeAccessToken();
+    await apiFetch("/posts");
   });
 
-  it("mendukung body bertipe FormData tanpa Content-Type json", async () => {
+  it("mendukung body FormData dan FormData tanpa authorization", async () => {
     const fd = new FormData();
     global.fetch = vi.fn().mockResolvedValue({
       ok: true,
@@ -52,18 +68,26 @@ describe("apiHelper", () => {
     expect(callArgs.headers["Content-Type"]).toBeUndefined();
   });
 
-  it("melempar error jika response not ok", async () => {
+  it("melempar error jika response not ok dengan dan tanpa pesan json", async () => {
+    // Dengan pesan
     global.fetch = vi.fn().mockResolvedValue({
       ok: false,
       status: 400,
-      json: async () => ({ message: "Request bermasalah" }),
+      json: async () => ({ message: "Pesan error API" }),
     });
+    await expect(apiFetch("/fail")).rejects.toThrow("Pesan error API");
 
-    await expect(apiFetch("/fail")).rejects.toThrow("Request bermasalah");
+    // Tanpa pesan (status fallback)
+    global.fetch = vi.fn().mockResolvedValue({
+      ok: false,
+      status: 500,
+      json: async () => ({}),
+    });
+    await expect(apiFetch("/fail500")).rejects.toThrow("Request gagal dengan status 500");
   });
 
-  it("melempar error jaringan umum jika json gagal diparse", async () => {
-    global.fetch = vi.fn().mockRejectedValue(new Error("Network Error"));
-    await expect(apiFetch("/error")).rejects.toThrow("Network Error");
+  it("melempar error jika terjadi exception jaringan tanpa error.message", async () => {
+    global.fetch = vi.fn().mockRejectedValue({});
+    await expect(apiFetch("/error")).rejects.toThrow("Terjadi kesalahan jaringan.");
   });
 });

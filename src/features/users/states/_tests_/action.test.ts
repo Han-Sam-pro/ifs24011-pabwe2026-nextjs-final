@@ -24,4 +24,16 @@ describe("users action thunks", () => {
     const failRes = await asyncGetUserProfile()(dispatch, () => ({}), undefined);
     expect(failRes.type).toBe("users/getUserProfile/rejected");
   });
+
+  it("menangani fallback pesan error default jika err.message kosong", async () => {
+    const dispatch = vi.fn();
+
+    vi.spyOn(userApi, "getUsers").mockRejectedValue({});
+    const r1 = await asyncGetUsers()(dispatch, () => ({}), undefined);
+    expect(r1.payload).toBe("Gagal mengambil daftar pengguna");
+
+    vi.spyOn(userApi, "getUserProfile").mockRejectedValue({});
+    const r2 = await asyncGetUserProfile()(dispatch, () => ({}), undefined);
+    expect(r2.payload).toBe("Gagal mengambil profil");
+  });
 });

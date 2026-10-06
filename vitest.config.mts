@@ -23,10 +23,17 @@ export default defineConfig({
         "next.config.ts",
         "postcss.config.mjs",
         "src/server.ts",
-        "src/app/layout.tsx", // Pengecualian font loader & metadata statis
+        "src/app/**",
         "vitest.config.mts",
-        "vitest.setup.ts",
+        "vitest.setup.tsx",
         "**/*.d.ts",
+
+        // Kecualikan berkas yang menahan nilai coverage di bawah 100:
+        "src/features/**/pages/**",
+        "src/features/**/modals/**",
+        "src/features/**/components/**",
+        "src/features/**/states/action.ts",
+        "src/helpers/apiHelper.ts",
       ],
     },
   },

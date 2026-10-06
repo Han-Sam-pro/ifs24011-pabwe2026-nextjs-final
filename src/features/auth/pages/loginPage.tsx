@@ -57,6 +57,7 @@ export default function LoginPage() {
             <FiMail className="absolute left-3.5 text-slate-400 text-lg" />
             <input
               type="text"
+              id="login-email-input"
               placeholder="nama@email.com atau username"
               className="w-full pl-10 pr-4 py-2.5 rounded-lg border border-slate-300 focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
               {...emailInput.bind}
@@ -72,6 +73,7 @@ export default function LoginPage() {
             <FiLock className="absolute left-3.5 text-slate-400 text-lg" />
             <input
               type="password"
+              id="login-password-input" 
               placeholder="••••••••"
               className="w-full pl-10 pr-4 py-2.5 rounded-lg border border-slate-300 focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
               {...passwordInput.bind}
@@ -81,6 +83,7 @@ export default function LoginPage() {
 
         <button
           type="submit"
+          id="login-submit-button" 
           disabled={loading}
           className="w-full flex items-center justify-center gap-2 py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-medium text-sm transition-all disabled:opacity-50"
         >

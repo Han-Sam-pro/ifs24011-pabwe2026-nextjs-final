@@ -1,6 +1,6 @@
 const TOKEN_KEY = "DELCOM_ACCESS_TOKEN";
 const BASE_URL =
-  process.env.NEXT_PUBLIC_DELCOM_BASEURL || "https://open-api.delcom.org";
+  process.env.NEXT_PUBLIC_DELCOM_BASEURL || "https://open-api.delcom.org/api/v1";
 
 /**
  * Mengambil token autentikasi dari localStorage
